@@ -3,7 +3,7 @@ module TicTacToe where
 import Data.Array ((!!), updateAt)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Either (Either(Left, Right))
-import Prelude ((=<<), (>>=))
+import Prelude ((>>=))
   
 data Piece = X | O
 type Tile = Maybe Piece
@@ -46,6 +46,7 @@ place board pos piece = newBoard
       case updateAt pos.y nr board of
         Nothing -> Left NonExistantBoardPosition
         Just nb -> Right nb
+
 
 
 test :: String
