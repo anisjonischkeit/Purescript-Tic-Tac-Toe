@@ -4,8 +4,22 @@ import Data.Array ((!!), updateAt)
 import Data.Maybe (Maybe(Nothing, Just))
 import Data.Either (Either(Left, Right))
 import Prelude ((>>=))
+import Data.Show
+-- import Date.Show
   
 data Piece = X | O
+
+-- derive instance showPiece :: Show Piece
+instance showPiece :: Show Piece where
+  show = case _ of
+    X -> "X"
+    O -> "O"
+
+invertPiece :: Piece -> Piece
+invertPiece = case _ of
+  X -> O
+  O -> X
+
 type Tile = Maybe Piece
 type Row = Array Tile
 type Board = Array Row
@@ -50,4 +64,4 @@ place board pos piece = newBoard
 
 
 test :: String
-test = "hiiii"
+test = "hiiisssi"
