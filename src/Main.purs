@@ -82,6 +82,7 @@ render model =
     [ H.h1 [] [ H.text "Purescript Tic Tac Toe" ]
     , H.h2 [] [ H.text (showBoardState model) ]
     , boardView model.board
+    , H.br []
     , H.button [ H.onClick (H.always_ Reset)] [ H.text "reset"]
     ]
 
