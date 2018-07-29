@@ -10,10 +10,14 @@ import Spork.Html (Html)
 import Spork.Html as H
 import Spork.PureApp (PureApp)
 import Spork.PureApp as PureApp
-import TicTacToe (Board, Piece(X), Tile, Position, initialBoard, invertPiece, place)
+import TicTacToe (Board, Piece(X), Tile, Position, BoardState(..), initialBoard, invertPiece, place, getBoardState)
+
+
+-- Model
+
 
 type Model = 
-  { board :: Board
+  { board :: Board 
   , player :: Piece
   }
 
@@ -23,37 +27,78 @@ initialModel =
   , player : X
   }
 
+
+-- Update
+
+
 data Action
   = Play Position
-  | Noop
+  | Reset
 
 update ∷ Model → Action → Model
-update model = case _ of
-  Play pos → case place model.board pos model.player of 
-    Right newBoard -> { board : newBoard, player : invertPiece model.player }
-    Left e -> model
-  Noop → model
+update model = 
+  case _ of
+    Play pos → 
+      case getBoardState model.board of
+        Playing ->
+          case place model.board pos model.player of 
+            Right newBoard -> { board : newBoard, player : invertPiece model.player }
+            Left e -> model
 
--- tileView :: Tile -> ?
+        _ -> model
+
+    Reset → initialModel
+
+
+-- Views
+
+
 tileView :: Tile -> Position -> Html Action
 tileView tile pos = 
   H.button
-    [ H.onClick (H.always_ (Play pos)) ]
+    [ H.onClick (H.always_ (Play pos))
+    , H.classes ["tictactoetile"]
+    ]
     [ 
       H.text case tile of 
         Just p -> show p
         Nothing -> "."
     ]
 
-render ∷ Model → Html Action
-render model =
+boardView :: Board -> Html Action
+boardView board =
   H.div 
     [] 
-    (flip mapWithIndex model.board (\y row ->
+    (flip mapWithIndex board (\y row ->
       H.div [] (flip mapWithIndex row (\x tile ->
         tileView tile {x : x, y : y}
       ))
     ))
+
+render ∷ Model → Html Action
+render model =
+  H.div 
+    [] 
+    [ H.h1 [] [ H.text "Purescript Tic Tac Toe" ]
+    , H.h2 [] [ H.text (showBoardState model) ]
+    , boardView model.board
+    , H.button [ H.onClick (H.always_ Reset)] [ H.text "reset"]
+    ]
+
+
+-- Utils
+
+
+showBoardState :: Model -> String
+showBoardState model  =
+  case getBoardState model.board of 
+    Playing -> "It's " <> show model.player <> "'s turn."
+    Winner piece -> show (invertPiece model.player) <> " has won the game."
+    Tie -> "X and O have tied the game."
+
+
+-- App
+
 
 app ∷ PureApp Model Action
 app = { update, render, init: initialModel }
