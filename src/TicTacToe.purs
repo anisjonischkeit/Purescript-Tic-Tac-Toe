@@ -1,15 +1,18 @@
 module TicTacToe where
 
-import Data.Array ((!!), updateAt)
-import Data.Maybe (Maybe(Nothing, Just))
-import Data.Either (Either(Left, Right))
-import Prelude ((>>=))
 import Data.Show
+import Prelude
+
+import Data.Array ((!!), updateAt)
+import Data.Either (Either(Left, Right))
+import Data.Foldable (all, any)
+import Data.Maybe (Maybe(Nothing, Just))
+import Prelude ((>>=))
 -- import Date.Show
   
 data Piece = X | O
 
--- derive instance showPiece :: Show Piece
+derive instance eqPiece :: Eq Piece
 instance showPiece :: Show Piece where
   show = case _ of
     X -> "X"
@@ -19,6 +22,78 @@ invertPiece :: Piece -> Piece
 invertPiece = case _ of
   X -> O
   O -> X
+
+data BoardState
+  = Playing
+  | Winner Piece
+  | Tie
+
+allEq :: forall a. Eq a => a -> Array a -> Boolean
+allEq comparator xs = all (eq comparator) xs
+
+fullRow :: Board -> Piece -> Boolean
+fullRow board piece = 
+  any (allEq (Just piece)) board
+
+fullColumn :: Board -> Piece -> Boolean
+fullColumn board piece = 
+  case board of
+    [ [ Just a, _, _]
+    , [ Just b, _, _]
+    , [ Just c, _, _]
+    ] -> allEq piece [a,b,c]
+    [ [ _, Just a, _]
+    , [ _, Just b, _]
+    , [ _, Just c, _]
+    ] -> allEq piece [a,b,c]
+    [ [ _, _, Just a]
+    , [ _, _, Just b]
+    , [ _, _, Just c]
+    ] -> allEq piece [a,b,c]
+    _ -> false
+
+fullDiagonal :: Board -> Piece -> Boolean
+fullDiagonal board piece = 
+  case board of
+    [ [ Just a, _, _]
+    , [ _, Just b, _]
+    , [ _, _, Just c]
+    ] -> allEq piece [a,b,c]
+    [ [ _, _, Just a]
+    , [ _, Just b, _]
+    , [ Just c, _, _]
+    ] -> allEq piece [a,b,c]
+    _ -> false
+
+fullBoard :: Board -> Boolean
+fullBoard board = 
+  case board of
+    [ [ Just _, Just _, Just _]
+    , [ Just _, Just _, Just _] 
+    , [ Just _, Just _, Just _]
+    ] -> true
+    _ -> false
+
+getBoardState :: Board -> BoardState
+getBoardState board = 
+  if (
+    (fullRow board X) ||
+    (fullColumn board X) ||
+    (fullDiagonal board X)
+  )
+  then Winner X
+  
+  else if (
+    (fullRow board O) ||
+    (fullColumn board O) ||
+    (fullDiagonal board O)
+  )
+  then Winner O
+
+  else if fullBoard board
+  then Tie
+
+  else Playing
 
 type Tile = Maybe Piece
 type Row = Array Tile
