@@ -8,7 +8,6 @@ import Data.Either (Either(Left, Right))
 import Data.Foldable (all, any)
 import Data.Maybe (Maybe(Nothing, Just))
 import Prelude ((>>=))
--- import Date.Show
   
 data Piece = X | O
 

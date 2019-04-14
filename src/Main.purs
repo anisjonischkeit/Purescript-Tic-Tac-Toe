@@ -10,7 +10,7 @@ import Spork.Html (Html)
 import Spork.Html as H
 import Spork.PureApp (PureApp)
 import Spork.PureApp as PureApp
-import TicTacToe (Board, Piece(X), Tile, Position, BoardState(..), initialBoard, invertPiece, place, getBoardState)
+import TicTacToe (..)
 
 
 -- Model
@@ -35,19 +35,21 @@ data Action
   = Play Position
   | Reset
 
-update ∷ Model → Action → Model
-update model = 
+update ∷ Model -> Action -> Model
+update model action = 
   case _ of
-    Play pos → 
-      case getBoardState model.board of
-        Playing ->
-          case place model.board pos model.player of 
-            Right newBoard -> { board : newBoard, player : invertPiece model.player }
-            Left e -> model
+    Play pos -> 
+      case (boardState, piecePlacingResult) of
+        (Playing, Right newBoard) ->
+          { board : newBoard, player : invertPiece model.player }
 
         _ -> model
+      
+      where
+        piecePlacingResult = place model.board pos model.player
+        boardState = getBoardState model.board
 
-    Reset → initialModel
+    Reset -> initialModel
 
 
 -- Views
@@ -75,7 +77,7 @@ boardView board =
       ))
     ))
 
-render ∷ Model → Html Action
+render ∷ Model -> Html Action
 render model =
   H.div 
     [] 
